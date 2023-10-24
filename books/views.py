@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 
 from books.models import Book
@@ -20,5 +21,7 @@ def detail(request, book_id):
 def delete(request, book_id):
     book = get_object_or_404(Book, pk=book_id),
     Book.objects.get(pk=book_id).delete()
+
+    messages.success(request, f"Book '{book_id}' deleted successfully.", extra_tags="alert alert-success")
 
     return redirect("books:list")
