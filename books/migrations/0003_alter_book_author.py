@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterField(
             model_name='book',
-            name='author',
+            name='authors',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='books.auther'),
         ),
     ]
