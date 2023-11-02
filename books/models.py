@@ -1,14 +1,15 @@
 from uuid import uuid4
 
+from django.contrib.auth.models import User
 from django.db import models
 
 
-class Author(models.Model):
-    name = models.CharField(max_length=200)
-    bio = models.TextField()
+# class Author(models.Model):
+# name = models.CharField(max_length=200)
+#   bio = models.TextField()
 
-    def __str__(self):
-        return self.name
+#   def __str__(self):
+#     return self.name
 
 
 def book_path(instance, filename):
@@ -19,7 +20,7 @@ def book_path(instance, filename):
 
 class Book(models.Model):
     title = models.CharField(max_length=200, verbose_name="name")
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=9, decimal_places=0)
     description = models.TextField()
     publication_date = models.DateField()
@@ -27,4 +28,3 @@ class Book(models.Model):
 
     def __str__(self):
         return self.title
-

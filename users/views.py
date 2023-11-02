@@ -1,7 +1,9 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as django_login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
+from django.views import View
 
 from users.forms import UserCreationForm, UserLoginForm
 
@@ -25,7 +27,6 @@ def register(request):
 
 
 def login(request):
-
     if request.method == "POST":
         form = UserLoginForm(request.POST)
         if form.is_valid():
@@ -42,9 +43,19 @@ def login(request):
 
     return render(request, template_name="users/login.html", context={"form": form})
 
+# def user_logout(request):
+#     logout(request)
+#     messages.success(request, message=f"Logged out successfully",
+#                      extra_tags="alert alert-success")
+#     return redirect("books:list")
 
-def user_logout(request):
-    logout(request)
-    messages.success(request, message=f"Logged out successfully",
-                     extra_tags="alert alert-success")
-    return redirect("books:list")
+
+class UserLogoutView(LoginRequiredMixin, View):
+    # login_url = "/users/login"
+    def get(self, request):
+        logout(request)
+
+        messages.success(request, message=f"Logged out successfully",
+                            extra_tags="alert alert-success")
+
+        return redirect("books:list")

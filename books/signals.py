@@ -1,7 +1,7 @@
 from django.db.models.signals import pre_save, post_delete
 from django.dispatch import receiver
 
-from books.models import Author, Book
+from books.models import Book
 
 
 @receiver(post_delete, sender=Book)
