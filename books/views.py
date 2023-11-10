@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 
-from books.forms import BookCreateForm
+from books.forms import BookCreateForm, BookCreateWithAuthorForm
 from books.models import Book
 
 
@@ -70,6 +70,26 @@ def delete(request, book_id):
 #
 #     return render(request, "books/create.html", {"form": form})
 
+class BookCreateWithAuthorView(LoginRequiredMixin, View):
+    form_class = BookCreateWithAuthorForm
+    template_name = "books/create.html"
+
+    def get(self, request):
+        form = self.form_class()
+        return render(request, self.template_name, {"form": form})
+
+    def post(self, request):
+        form = self.form_class(request.POST, request.FILES, author=request.user)
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(request, f"Book '{form.cleaned_data['title']}' created successfully.",
+                             extra_tags="alert alert-success")
+
+        return render(request, self.template_name, {"form": form})
+
+
 class BookCreateView(View):
     form_class = BookCreateForm
     template_name = "books/create.html"
@@ -121,7 +141,7 @@ class BookUpdateView(LoginRequiredMixin, View):
         super().setup(request, *args, **kwargs)
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user != self.book.author:
+        if request.user != self.book.author & self.superuser:
             return HttpResponse("Not Allowed!", status=401)
 
         super().dispatch(request, *args, **kwargs)

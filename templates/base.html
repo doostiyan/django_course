@@ -13,7 +13,7 @@
     <div class="container">
         <a class="navbar-brand" href="#">Bookstore</a>
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            {% if not request.user.is_authenticed %}
+            {% if not request.user.is_authenticated %}
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="{% url 'users:register' %}">Register</a>
         </li>
