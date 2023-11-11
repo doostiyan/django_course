@@ -31,12 +31,47 @@ class BookDetailView(View):
         return render(request, "books/detail.html", {"book": book})
 
 
-def delete(request, book_id):
-    book = get_object_or_404(Book, pk=book_id)
-    book.delete()
-    messages.success(request, f"Book '{book.title}' deleted successfully.", extra_tags="alert alert-success")
+class BookDeleteView(LoginRequiredMixin, View):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.book = None
 
-    return redirect("books:list")
+    def setup(self, request, *args, **kwargs):
+        self.book = book = get_object_or_404(Book, pk=kwargs["book_id"])
+
+        super().setup(request, *args, **kwargs)
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user != self.book.author and not request.user.is_superuser:
+            return HttpResponse("Not Allowed!", status=401)
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, book_id):
+        book.delete()
+        messages.success(request, f"Book '{book.title}' deleted successfully.", extra_tags="alert alert-success")
+
+        return redirect("books:list")
+    def post(self, request, book_id):
+        form = self.form_class(request.POST, request.FILES, instance=self.book)
+
+        if form.is_valid():
+            form.save()
+
+            messages.success(request, f"Book '{form.cleaned_data['title']}' updated successfully.",
+                             extra_tags="alert alert-success")
+
+        return render(request, self.template_name, {"form": form})
+
+
+
+
+# def delete(request, book_id):
+#     book = get_object_or_404(Book, pk=book_id)
+#     book.delete()
+#     messages.success(request, f"Book '{book.title}' deleted successfully.", extra_tags="alert alert-success")
+#
+#     return redirect("books:list")
 
 
 # def create_author(request):
@@ -95,7 +130,7 @@ class BookCreateView(View):
     template_name = "books/create.html"
 
     def get(self, request):
-        form = self.form_class()
+        form = self.form_class(initial={"title":"Book", "price": 100000})
         return render(request, self.template_name, {"form": form})
 
     def post(self, request):
@@ -138,10 +173,10 @@ class BookUpdateView(LoginRequiredMixin, View):
     def setup(self, request, *args, **kwargs):
         self.book = Book.objects.get(pk=kwargs["book_id"])
 
-        super().setup(request, *args, **kwargs)
+        return super().setup(request, *args, **kwargs)
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user != self.book.author & self.superuser:
+        if request.user != self.book.author and not request.user.is_superuser:
             return HttpResponse("Not Allowed!", status=401)
 
         super().dispatch(request, *args, **kwargs)

@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # my apps
     'books.apps.BooksConfig',
+    'users.apps.UsersConfig'
 ]
 
 MIDDLEWARE = [
@@ -123,3 +124,5 @@ MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 LOGIN_URL = "/users/login/"
+
+AUTH_USER_MODEL = "users.User"

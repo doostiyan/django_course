@@ -1,7 +1,8 @@
 from uuid import uuid4
 
-from django.contrib.auth.models import User
 from django.db import models
+
+from project import settings
 
 
 # class Author(models.Model):
@@ -17,15 +18,20 @@ def book_path(instance, filename):
     ext = filename.split(".")[-1]
     return f"books/{instance.author.id}/{name}.{ext}"
 
+class BookManager(models.Manager):
+    def get_valuable_books(self):
+        return self.filter(price__gte=100000)
+
 
 class Book(models.Model):
     title = models.CharField(max_length=200, verbose_name="name")
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=9, decimal_places=0)
     description = models.TextField()
     publication_date = models.DateField()
     cover = models.ImageField(upload_to=book_path)
 
+    objects = BookManager()
     def __str__(self):
         return self.title
 
@@ -41,3 +47,6 @@ class Book(models.Model):
         super().delete(*args, **kwargs)
 
         self.cover.delete(save=False)
+
+
+Book.objects.get_valuable_books()
